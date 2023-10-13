@@ -110,6 +110,7 @@ int main(){
     return 0;
 }
 */
+/*
 int main(){
     int array[5], count, max = 0;
     array[0] = 5;
@@ -124,3 +125,4 @@ int main(){
     }
     printf("The max value of the array is %d", max);
 }
+*/
