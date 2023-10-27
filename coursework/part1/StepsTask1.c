@@ -3,14 +3,14 @@
 #include <string.h>
 
 // Define an appropriate struct
-typedef struct {
+typedef struct csvdata{
 	char date[11];
 	char time[6];
 	int steps;
 } FITNESS_DATA;
 
 // Define any additional variables here
-
+FITNESS_DATA data;
 
 
 // This is your helper function. Do not change it in any way.
@@ -50,25 +50,25 @@ int main() {
         return 1;
     }
 
-    int fileLines;
+    int fileLines = 0;
     int buffer_size = 100;
     char line_buffer[buffer_size];
+    char date[11];
+    char time[6];
+    char steps[100];
     while (fgets(line_buffer, buffer_size, file) != NULL) {
         fileLines ++;
     }
     printf("Number of records in file: %d\n", fileLines);
     int i;
-    char date[11];
-    char time[6];
-    char steps[100];
-    for (i = 0; i <= 3; i++){
-        FITNESS_DATA data;
+    rewind(file);
+    for (i = 0; i < 3; i++){
         fgets(line_buffer, buffer_size, file);
         tokeniseRecord(line_buffer, ",", date, time, steps);
-        data.date[11] = *date;
-        data.time[6] = *time;
-        data.steps = atoi(&steps);
-        printf("%s/%s/%d",data.date, data.time, data.steps);
+        strcpy(data.date, date);
+        strcpy(data.time, time);
+        data.steps = atoi(steps);
+        printf("%s/%s/%d\n",data.date, data.time, data.steps);
     }
 
 }
