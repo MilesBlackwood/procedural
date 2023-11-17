@@ -126,18 +126,22 @@ float averageSteps(FILE *file){
 }
 
 void peroidAbove500(FILE *file){
-    char startPeriodTime[100];
-    char startPeriodDate[100];
-    char endPeriodTime[100];
-    char endPeriodDate[100];
-    char newStartPeriodTime[100];
-    char newStartPeriodDate[100];
-    char newEndPeriodTime[100];
-    char newEndPeriodDate[100];
+    rewind(file);
+    char startPeriodTime[100] = "";
+    char startPeriodDate[100] = "";
+    char endPeriodTime[100] = "";
+    char endPeriodDate[100] = "";
+    char newStartPeriodTime[100] = "";
+    char newStartPeriodDate[100] = "";
+    char newEndPeriodTime[100] = "";
+    char newEndPeriodDate[100] = "";
     int len = 0;
     int newLen = 0;
     int previous = 0; // if the data before was over 500 steps
-    char period[8] = "current";
+    char current[8] = "current";
+    char new[8] = "new";
+    char period[8];
+    strcpy(period, current);
     char date[11];
     char time[6];
     char steps[100];
@@ -145,49 +149,59 @@ void peroidAbove500(FILE *file){
     char line_buffer[buffer_size];
     while (fgets(line_buffer, buffer_size, file) != NULL) {
         tokeniseRecord(line_buffer, ",", date, time ,steps);
-        if (atoi(steps) > 500){
-                if (previous == 1){
-                    if (period == "current"){
-                        len += 1;
-                        strcpy(endPeriodDate, date);
-                        strcpy(endPeriodTime, time);
-                    }
-                    else if (period == "new"){
-                        newLen += 1;
-                        strcpy(newEndPeriodDate, date);
-                        strcpy(newEndPeriodTime, time);
-                    }
+        if (atoi(steps) >= 500){
+            printf("Hello\n");
+            if (previous == 1){
+                if (strcmp(period,current)){
+                    len += 1;
+                    strcpy(endPeriodDate, date);
+                    strcpy(endPeriodTime, time);
+
                 }
-                else if (previous == 0){
-                    if (period == "current"){
-                        len = 1;
-                        strcpy(startPeriodDate, date);
-                        strcpy(startPeriodTime, time);
-                        previous = 1;
-                    }
-                    else if (period == "new"){
-                        newLen = 1;
-                        strcpy(newStartPeriodDate, date);
-                        strcpy(newStartPeriodTime, time);
-                        previous = 1;
-                    }
+                if (strcmp(period,new)){
+                    newLen += 1;
+                    strcpy(newEndPeriodDate, date);
+                    strcpy(newEndPeriodTime, time);
+
                 }
-                
-                if (newLen > len){
-                    strcpy(startPeriodTime ,newStartPeriodTime);
-                    strcpy(startPeriodDate ,newStartPeriodDate);
-                    strcpy(endPeriodTime, newEndPeriodTime);
-                    strcpy(endPeriodDate, newEndPeriodDate);
-                    len =  newLen;
-                    strcpy(period, "current");
+            }
+            if (previous == 0){
+
+                if (strcmp(period,current) && len == 0){
+                    len = 1;
+                    strcpy(startPeriodDate, date);
+                    strcpy(startPeriodTime, time);
+                    previous = 1;
+                    
                 }
+                if (strcmp(period,new) && newLen == 0){
+                    newLen = 1;
+                    strcpy(newStartPeriodDate, date);
+                    strcpy(newStartPeriodTime, time);
+                    previous = 1;
+                }
+            }
+        }   
+        if (newLen > len){
+            strcpy(startPeriodTime ,newStartPeriodTime);
+            strcpy(startPeriodDate ,newStartPeriodDate);
+            strcpy(endPeriodTime, newEndPeriodTime);
+            strcpy(endPeriodDate, newEndPeriodDate);
+            len = newLen;
+            newLen = 0;
+            strcpy(period, current);
         }
-        else{
+        
+        if (atoi(steps) < 500){
+            if (len == 1){
+                strcpy(period, new);
+            }
             previous = 0;
-            strcpy(period, "new");
+            newLen = 0;
         }
+    printf("Len: %d NewLen: %d period: %s previous: %d\n", len, newLen, period, previous);
     }
-    printf("Longest period start: %s %s\nLongest period end: %s %s", startPeriodDate, startPeriodTime, endPeriodDate, endPeriodTime);
+    printf("Longest period start: %s %s\nLongest period end: %s %s\n", startPeriodDate, startPeriodTime, endPeriodDate, endPeriodTime);
 }
 // Complete the main function
 int main() {
